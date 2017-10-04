@@ -1,0 +1,9 @@
+{
+	"Server_Port":1234,
+	"Mysql_IP":"localhost",
+	"Mysql_Account":"root",
+	"Mysql_Password":"1234",
+	"Mysql_DB":"estate",
+	"Mysql_SetMaxOpenConns":2000,
+	"Mysql_SetMaxIdleConns":1000
+}
