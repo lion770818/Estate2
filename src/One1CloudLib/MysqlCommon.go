@@ -19,7 +19,7 @@ var database = &sql.DB{}
 func Mysql_Init() {
 
 	var err error
-	
+
 	CommonLog_INFO_Printf("#Mysql_Init")
 
 	mysql_config := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", ServerConfig.Mysql_Account, ServerConfig.Mysql_Password, ServerConfig.Mysql_IP, ServerConfig.Mysql_DB)
@@ -441,7 +441,7 @@ func Mysql_CommonMemberListGet2(Auth PacketCmd_AuthInfo) (ResponseInfo_MemberInf
 		MemberInfoList ResponseInfo_MemberInfoList
 	)
 
-	CommonLog_INFO_Printf("#Mysql_CommonMemberListGet (取得大廳資訊) PlatformID=%d, Account=%s, Password=%s",
+	CommonLog_INFO_Printf("#Mysql_CommonMemberListGet(會員清單取得) PlatformID=%d, Account=%s, Password=%s",
 		Auth.PlatformID, Auth.Account, Auth.Password)
 
 	var SqlQuery string = ""
@@ -1159,4 +1159,361 @@ func Mysql_CommonTableInfo_IdGet() int64 {
 	CommonLog_INFO_Printf("桌子 tableName=%s, id=%d", tableName, return_id)
 
 	return return_id
+}
+
+//=========================================================================================================================================================================
+// 顧客資料新增 (這邊嘗試過 用? 去組指令, 但是出錯時候 列印指令拿到一堆 ??? 所以還是用傳統的 組好mysql字串, 方便除錯 )
+func Mysql_CommonCustomerInfo_Insert(customer CustomerInfo) bool {
+
+	var ret bool = false
+	var SqlQuery string = ""
+	CommonLog_INFO_Printf("#Mysql_CommonCustomerInfo_Insert (會員資料)")
+
+	customer.CreateTime = Common_NowTimeGet()
+	customer.UpdateTime = Common_NowTimeGet()
+
+	SqlQuery = fmt.Sprintf("INSERT INTO customer(User_ID, NickName, CreateTime, UpdateTime, CustomerName, CustomerAge, CustomerGender, CustomerIdentityNumber, CustomerPhoneNumber, CustomerAddress, CustomerHomeID, CustomerHomeAge, CustomerHomeFootage, CustomerHomePrice, Vip_rank ) values(%d,'%s','%s','%s','%s',%d,'%s','%s','%s','%s','%d',%d,%f,%d,%d)",
+		customer.User_ID, customer.NickName, customer.CreateTime, customer.UpdateTime, customer.CustomerName,
+		customer.CustomerAge, customer.CustomerGender, customer.CustomerIdentityNumber,
+		customer.CustomerPhoneNumber, customer.CustomerAddress,
+		customer.CustomerHomeID, customer.CustomerHomeAge, customer.CustomerHomeFootage, customer.CustomerHomePrice, customer.Vip_rank)
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+
+	result, err := database.Exec(SqlQuery)
+	if err != nil {
+		ErrorStr := err.Error()
+		CommonLog_WARNING_Println(ErrorStr)
+		ret = false
+	} else {
+		ret = true
+
+		num, err := result.RowsAffected()
+		if err != nil {
+			CommonLog_INFO_Printf("fetch row affected failed:", err.Error())
+			ret = false
+		}
+
+		if num > 0 {
+			ret = true
+		} else {
+			ret = false
+		}
+
+		CommonLog_INFO_Printf("#Mysql_CommonCustomerInfo_Insert record number=%d ret=%v", num, ret)
+	}
+
+	//defer database.Close() // Close the statement when we leave main() / the program
+
+	return ret
+}
+
+//=========================================================================================================================================================================
+// 顧客資料更新 (這邊嘗試過 用? 去組指令, 但是出錯時候 列印指令拿到一堆 ??? 所以還是用傳統的 組好mysql字串, 方便除錯 )
+func Mysql_CommonCustomerInfo_Update(User_ID int64, customer CustomerInfo) bool {
+
+	var ret bool = false
+	var SqlQuery string = ""
+	CommonLog_INFO_Printf("#Mysql_CommonCustomerInfo_Update (顧客資料更新)")
+
+	customer.UpdateTime = Common_NowTimeGet()
+
+	SqlQuery = fmt.Sprintf("update customer set UpdateTime='%s', CustomerName='%s', CustomerAge=%d, CustomerGender='%s', CustomerIdentityNumber='%s', CustomerPhoneNumber='%s', CustomerAddress='%s', CustomerHomeID=%d, CustomerHomeAge=%d, CustomerHomeFootage=%f, CustomerHomePrice=%d, Vip_rank=%d where User_ID=%d AND CustomerName='%s' AND CustomerIdentityNumber='%s'; ",
+		customer.UpdateTime,
+		customer.CustomerName, customer.CustomerAge, customer.CustomerGender, customer.CustomerIdentityNumber,
+		customer.CustomerPhoneNumber, customer.CustomerAddress,
+		customer.CustomerHomeID, customer.CustomerHomeAge, customer.CustomerHomeFootage, customer.CustomerHomePrice, customer.Vip_rank,
+		User_ID, customer.CustomerName, customer.CustomerIdentityNumber)
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+
+	result, err := database.Exec(SqlQuery)
+	if err != nil {
+		ErrorStr := err.Error()
+		CommonLog_WARNING_Println(ErrorStr)
+		ret = false
+	} else {
+		ret = true
+
+		num, err := result.RowsAffected()
+		if err != nil {
+			CommonLog_INFO_Printf("fetch row affected failed:", err.Error())
+			ret = false
+		}
+
+		if num > 0 {
+			ret = true
+		} else {
+			ret = false
+		}
+
+		CommonLog_INFO_Printf("#Mysql_CommonCustomerInfo_Update record number=%d ret=%v", num, ret)
+	}
+
+	//defer database.Close() // Close the statement when we leave main() / the program
+
+	return ret
+}
+
+//=========================================================================================================================================================================
+// 顧客刪除
+func Mysql_CommonCustomerInfo_Delete(User_ID int64, customer CustomerInfo) bool {
+
+	var ret bool = false
+	var SqlQuery string = ""
+	CommonLog_INFO_Printf("#Mysql_CommonCustomerInfo_Delete (顧客刪除) User_ID=%d, CustomerName=%s, CustomerIdentityNumber=%s",
+		User_ID, customer.CustomerName, customer.CustomerIdentityNumber)
+
+	customer.CreateTime = Common_NowTimeGet()
+	customer.UpdateTime = Common_NowTimeGet()
+
+	SqlQuery = fmt.Sprintf("delete from customer where User_ID=%d AND CustomerName='%s' AND CustomerIdentityNumber='%s';",
+		User_ID, customer.CustomerName, customer.CustomerIdentityNumber)
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+	result, err := database.Exec(SqlQuery) // ? = placeholder
+	if err != nil {
+		ErrorStr := err.Error()
+		CommonLog_WARNING_Println(ErrorStr)
+		ret = false
+	} else {
+		ret = true
+
+		num, err := result.RowsAffected()
+		if err != nil {
+			CommonLog_INFO_Printf("fetch row affected failed:", err.Error())
+			ret = false
+		}
+
+		if num > 0 {
+			ret = true
+		} else {
+			ret = false
+		}
+
+		CommonLog_INFO_Printf("Mysql_CommonCustomerInfo_Delete record number=%d ret=%v", num, ret)
+	}
+
+	//defer result.Close() // Close the statement when we leave main() / the program
+
+	return ret
+}
+
+//=========================================================================================================================================================================
+// 顧客清單取得 Customer
+func Mysql_CommonCustomerListGet(member MemberInfo) (ResponseInfo_CustomerInfoList, bool) {
+
+	var ret bool = false
+	var (
+		CustomerInfoList ResponseInfo_CustomerInfoList
+	)
+
+	CommonLog_INFO_Printf("#Mysql_CommonMemberListGet (顧客清單取得) User_ID=%d", member.User_ID)
+
+	var SqlQuery string = ""
+
+	SqlQuery = fmt.Sprintf("SELECT User_ID, NickName , CreateTime, UpdateTime, CustomerName, CustomerAge, CustomerGender, CustomerIdentityNumber, CustomerPhoneNumber, CustomerAddress, CustomerHomeID, CustomerHomeAge, CustomerHomeFootage, CustomerHomePrice, Vip_rank FROM customer where User_ID=%d order by User_ID DESC;", member.User_ID)
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+	stmtIns, err2 := database.Query(SqlQuery) // ? = placeholder
+	if err2 != nil {
+		ErrorStr2 := err2.Error()
+		CommonLog_WARNING_Println(ErrorStr2)
+		ret = false
+	}
+
+	CustomerInfoList.Data_Count = 0
+	CustomerInfoList.Customer_List = make(map[int]CustomerInfo)
+	for stmtIns.Next() {
+
+		customer := CustomerInfo{} // 用來接的物件
+		if err2 := stmtIns.Scan(&customer.User_ID, &customer.NickName, &customer.CreateTime,
+			&customer.UpdateTime, &customer.CustomerName, &customer.CustomerAge, &customer.CustomerGender,
+			&customer.CustomerIdentityNumber, &customer.CustomerPhoneNumber, &customer.CustomerAddress, &customer.CustomerHomeID,
+			&customer.CustomerHomeAge, &customer.CustomerHomeFootage, &customer.CustomerHomePrice, &customer.Vip_rank); err2 != nil {
+			CommonLog_WARNING_Println(err2)
+			ret = false
+			break
+		}
+		ret = true
+
+		CommonLog_INFO_Printf("User_ID=%d, NickName=%s is CustomerName=%s, CustomerIdentityNumber=%s CustomerPhoneNumber=%s CustomerAddress=%s",
+			customer.User_ID, customer.NickName, customer.CustomerName, customer.CustomerIdentityNumber,
+			customer.CustomerPhoneNumber, customer.CustomerAddress)
+		CustomerInfoList.Customer_List[CustomerInfoList.Data_Count] = customer
+		CustomerInfoList.Data_Count++
+
+	}
+
+	defer stmtIns.Close() // Close the statement when we leave main() / the program
+
+	return CustomerInfoList, ret
+}
+
+//=========================================================================================================================================================================
+// 工作資料新增 (這邊嘗試過 用? 去組指令, 但是出錯時候 列印指令拿到一堆 ??? 所以還是用傳統的 組好mysql字串, 方便除錯 )
+func Mysql_CommonTask_Insert(task Task) bool {
+
+	var ret bool = false
+	var SqlQuery string = ""
+	CommonLog_INFO_Printf("#Mysql_CommonTask_Insert (工作資料)")
+
+	task.CreateTime = Common_NowTimeGet()
+	task.UpdateTime = Common_NowTimeGet()
+
+	SqlQuery = fmt.Sprintf("INSERT INTO task(User_ID, NickName, CreateTime, UpdateTime, TaskName, TaskDescribe, Memo) values(%d,'%s','%s','%s','%s','%s','%s')",
+		task.User_ID, task.NickName, task.CreateTime, task.UpdateTime, task.TaskName, task.TaskDescribe, task.Memo)
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+
+	result, err := database.Exec(SqlQuery)
+	if err != nil {
+		ErrorStr := err.Error()
+		CommonLog_WARNING_Println(ErrorStr)
+		ret = false
+	} else {
+		ret = true
+
+		num, err := result.RowsAffected()
+		if err != nil {
+			CommonLog_INFO_Printf("fetch row affected failed:", err.Error())
+			ret = false
+		}
+
+		if num > 0 {
+			ret = true
+		} else {
+			ret = false
+		}
+
+		CommonLog_INFO_Printf("#Mysql_CommonTask_Insert record number=%d ret=%v", num, ret)
+	}
+
+	//defer database.Close() // Close the statement when we leave main() / the program
+
+	return ret
+}
+
+//=========================================================================================================================================================================
+// 工作資料更新 (這邊嘗試過 用? 去組指令, 但是出錯時候 列印指令拿到一堆 ??? 所以還是用傳統的 組好mysql字串, 方便除錯 )
+func Mysql_CommonTask_Update(User_ID int64, task Task) bool {
+
+	var ret bool = false
+	var SqlQuery string = ""
+	CommonLog_INFO_Printf("#Mysql_CommonTask_Update (工作資料更新)")
+
+	task.UpdateTime = Common_NowTimeGet()
+
+	SqlQuery = fmt.Sprintf("update task set UpdateTime='%s', TaskName='%s', TaskDescribe='%s', Memo='%s' where User_ID=%d AND Task_ID=%d; ",
+		task.UpdateTime, task.TaskName, task.TaskDescribe, task.Memo, task.User_ID, task.TaskID)
+
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+
+	result, err := database.Exec(SqlQuery)
+	if err != nil {
+		ErrorStr := err.Error()
+		CommonLog_WARNING_Println(ErrorStr)
+		ret = false
+	} else {
+		ret = true
+
+		num, err := result.RowsAffected()
+		if err != nil {
+			CommonLog_INFO_Printf("fetch row affected failed:", err.Error())
+			ret = false
+		}
+
+		if num > 0 {
+			ret = true
+		} else {
+			ret = false
+		}
+
+		CommonLog_INFO_Printf("#Mysql_CommonTask_Update record number=%d ret=%v", num, ret)
+	}
+
+	//defer database.Close() // Close the statement when we leave main() / the program
+
+	return ret
+}
+
+//=========================================================================================================================================================================
+// 工作刪除
+func Mysql_CommonTask_Delete(User_ID int64, task Task) bool {
+
+	var ret bool = false
+	var SqlQuery string = ""
+	CommonLog_INFO_Printf("#Mysql_CommonTask_Delete (工作刪除) User_ID=%d, NickName=%s, TaskID=%d, TaskName=%s",
+		User_ID, task.NickName, task.TaskID, task.TaskName)
+
+	SqlQuery = fmt.Sprintf("delete from task where User_ID=%d AND Task_ID=%d;", User_ID, task.TaskID)
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+	result, err := database.Exec(SqlQuery) // ? = placeholder
+	if err != nil {
+		ErrorStr := err.Error()
+		CommonLog_WARNING_Println(ErrorStr)
+		ret = false
+	} else {
+		ret = true
+
+		num, err := result.RowsAffected()
+		if err != nil {
+			CommonLog_INFO_Printf("fetch row affected failed:", err.Error())
+			ret = false
+		}
+
+		if num > 0 {
+			ret = true
+		} else {
+			ret = false
+		}
+
+		CommonLog_INFO_Printf("Mysql_CommonTask_Delete record number=%d ret=%v", num, ret)
+	}
+
+	//defer result.Close() // Close the statement when we leave main() / the program
+
+	return ret
+}
+
+//=========================================================================================================================================================================
+// 工作清單取得 task
+func Mysql_CommonTaskListGet(member MemberInfo) (ResponseInfo_TaskList, bool) {
+
+	var ret bool = false
+	var (
+		TaskList ResponseInfo_TaskList
+	)
+
+	CommonLog_INFO_Printf("#Mysql_CommonMemberListGet (工作清單取得) User_ID=%d", member.User_ID)
+
+	var SqlQuery string = ""
+
+	SqlQuery = fmt.Sprintf("SELECT User_ID, NickName, CreateTime, UpdateTime, Task_ID, TaskName, TaskDescribe, Memo FROM task where User_ID=%d order by Task_ID DESC;", member.User_ID)
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+	stmtIns, err2 := database.Query(SqlQuery) // ? = placeholder
+	if err2 != nil {
+		ErrorStr2 := err2.Error()
+		CommonLog_WARNING_Println(ErrorStr2)
+		ret = false
+	}
+
+	TaskList.Data_Count = 0
+	TaskList.Task_List = make(map[int]Task)
+	for stmtIns.Next() {
+
+		task := Task{} // 用來接的物件
+		if err2 := stmtIns.Scan(&task.User_ID, &task.NickName, &task.CreateTime, &task.UpdateTime, &task.TaskID, &task.TaskName,
+			&task.TaskDescribe, &task.Memo); err2 != nil {
+			CommonLog_WARNING_Println(err2)
+			ret = false
+			break
+		}
+		ret = true
+
+		CommonLog_INFO_Printf("User_ID=%d, NickName=%s is CreateTime=%s, UpdateTime=%s TaskID=%d TaskName=%s TaskDescribe=%s, Memo=%s",
+			task.User_ID, task.NickName, task.CreateTime, task.UpdateTime, task.TaskID, task.TaskName, task.TaskDescribe, task.Memo)
+		TaskList.Task_List[TaskList.Data_Count] = task
+		TaskList.Data_Count++
+
+	}
+
+	defer stmtIns.Close() // Close the statement when we leave main() / the program
+
+	return TaskList, ret
 }

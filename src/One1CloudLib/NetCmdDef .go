@@ -8,16 +8,28 @@ package One1CloudLib
 // 網路封包
 // 測試網址     http://www.websocket.org/echo.html
 // server ip = ws://192.168.43.75:1234/One1CloudGameCmd
+// server ip = ws://192.168.0.105:1234/One1CloudGameCmd
 const (
 	NET_CMD_ACCOUNT_CREATE = "account_create" // 帳號建立
 	NET_CMD_ACCOUNT_DELETE = "account_delete" // 帳號刪除
 	NET_CMD_LOGIN          = "login"          // 登入								{"sys":"system", "cmd":"login", "sn":12345, "isEncode":false,"data":"{\"account\":\"cat111\",\"password\":\"1234\"}"}
 	NET_CMD_LOGOUT         = "logout"         // 登出							    {"sys":"system", "cmd":"logout", "sn":12345, "isEncode":false,"data":"{\"account\":\"cat111\",\"password\":\"1234\"}"}
 
-	NET_CMD_MEMBER_INSERT = "member_insert" 	// 新增會員							   {"sys":"system", "cmd":"member_insert", "sn":12345, "isEncode":false,"data":"{\"account\":\"cat111\",\"password\":\"1234\", \"NickName\":\"111\", \"IdentityNumber\":\"F124180631\" }"}
-	NET_CMD_MEMBER_UPDATE = "member_update" 	// 更新會員							   {"sys":"system", "cmd":"member_update", "sn":12345, "isEncode":false,"data":"{\"account\":\"cat222\",\"password\":\"1234\", \"NickName\":\"更新會員002\", \"IdentityNumber\":\"F123456789\" }"}	
-	NET_CMD_MEMBER_DELETE = "member_delete" 	// 刪除會員                            {"sys":"system", "cmd":"member_delete", "sn":12345, "isEncode":false,"data":"{\"user_id\":1,\"account\":\"cat222\",\"password\":\"1234\", \"NickName\":\"更新會員002\", \"IdentityNumber\":\"F123456784\" }"}
-	NET_CMD_MEMBER_LIST_GET = "member_list_get"	// 會員清單取得						 {"sys":"system", "cmd":"member_list_get", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1,\"account\":\"cat111\",\"password\":\"1234\" }"}
+	NET_CMD_MEMBER_INSERT   = "member_insert"   // 新增會員							   {"sys":"system", "cmd":"member_insert", "sn":12345, "isEncode":false,"data":"{\"account\":\"cat111\",\"password\":\"1234\", \"NickName\":\"111\", \"IdentityNumber\":\"F124180631\" }"}
+	NET_CMD_MEMBER_UPDATE   = "member_update"   // 更新會員							   {"sys":"system", "cmd":"member_update", "sn":12345, "isEncode":false,"data":"{\"account\":\"cat222\",\"password\":\"1234\", \"NickName\":\"更新會員002\", \"IdentityNumber\":\"F123456789\" }"}
+	NET_CMD_MEMBER_DELETE   = "member_delete"   // 刪除會員                            {"sys":"system", "cmd":"member_delete", "sn":12345, "isEncode":false,"data":"{\"user_id\":1,\"account\":\"cat222\",\"password\":\"1234\", \"NickName\":\"更新會員002\", \"IdentityNumber\":\"F123456784\" }"}
+	NET_CMD_MEMBER_LIST_GET = "member_list_get" // 會員清單取得						 {"sys":"system", "cmd":"member_list_get", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1,\"account\":\"cat111\",\"password\":\"1234\" }"}
+
+	NEW_CMD_CUSTOMER_INSERT   = "customer_insert"   // 新增顧客						{ "sys":"system","cmd":"customer_insert","sn":0,"isEncode":false,"data":"{\"user_id\":0,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"customer_name\":\"測試顧客\",\"customer_age\":0,\"customer_gender\":\"\",\"customer_identityNumber\":\"\",\"customer_phone_number\":\"\",\"customer_address\":\"\",\"customer_home_id\":0,\"customer_home_age\":0,\"customer_home_footage\":0,\"customer_home_price\":0,\"vip_rank\":0}"}
+	NEW_CMD_CUSTOMER_UPDATE   = "customer_update"   // 更新顧客						{ "sys":"system","cmd":"customer_update","sn":0,"isEncode":false,"data":"{\"user_id\":0,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"customer_name\":\"測試顧客\",\"customer_age\":0,\"customer_gender\":\"\",\"customer_identityNumber\":\"\",\"customer_phone_number\":\"\",\"customer_address\":\"\",\"customer_home_id\":0,\"customer_home_age\":0,\"customer_home_footage\":0,\"customer_home_price\":0,\"vip_rank\":7}"}
+	NET_CMD_CUSTOMER_DELETE   = "customer_delete"   // 刪除顧客                     { "sys":"system","cmd":"customer_delete","sn":0,"isEncode":false,"data":"{\"user_id\":0,\"nickname\":\"\",\"customer_name\":\"測試顧客\",\"customer_identityNumber\":\"\"}"}
+	NET_CMD_CUSTOMER_LIST_GET = "customer_list_get" // 顧客清單取得				   {"sys":"system", "cmd":"customer_list_get", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1,\"account\":\"cat111\",\"password\":\"1234\" }"}
+
+	NEW_CMD_TASK_INSERT   = "task_insert"   // 新增工作						{"cmd":"task_insert","sys":"system","sn":0,"isEncode":false,"data":"{\"task_id\":0,\"user_id\":0,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單01\",\"task_describe\":\"工作描述\",\"menmo\":\"測試的memo\"}"}
+	NEW_CMD_TASK_UPDATE   = "task_update"   // 更新工作						{"cmd":"task_update","sys":"system","sn":0,"isEncode":false,"data":"{\"task_id\":2,\"user_id\":1,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單02\",\"task_describe\":\"工作描述2\",\"menmo\":\"更新的memo\"}"}
+	NET_CMD_TASK_DELETE   = "task_delete"   // 刪除工作                     {"cmd":"task_delete","sys":"system","sn":0,"isEncode":false,"data":"{\"task_id\":2,\"user_id\":1,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單02\",\"task_describe\":\"工作描述2\",\"menmo\":\"更新的memo\"}"}
+	NET_CMD_TASK_LIST_GET = "task_list_get" // 工作清單取得
+
 	//====== game ==========================================
 	NET_CMD_LOBBYINFO_GET = "lobbyInfoGet" // 取得大廳資訊			  		     {"sys":"system", "cmd":"lobbyInfoGet", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1}"}
 	NET_CMD_ENTER_GAME    = "enter_game"   // 進入遊戲(autoMatch)				  {"sys":"game", "cmd":"enter_game", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1,\"lobby_id\":1,\"game_id\":1001,\"udid\":1,\"user_id\":1,\"channel\":\"123\",\"publish_ver\":\"1.0.0\",\"refresh\":\"0\",\"balance_ci\":3000 }"}
@@ -68,8 +80,18 @@ const (
 	ERROR_CODE_ERROR_GAME_MODE                      // 20錯誤的GameMode
 	ERROR_CODE_ERROR_JOIN_TABLE                     // 21加入桌失敗
 	ERROR_CODE_ERROR_PERMISSION_DENIED              // 22權限不足
+
 	ERROR_CODE_ERROR_CREATE_MEMBER                  // 23新增會員失敗
 	ERROR_CODE_ERROR_UPDATE_MEMBER                  // 24更新會員失敗
+	ERROR_CODE_ERROR_DELETE_MEMBER                  // 25刪除會員失敗
+
+	ERROR_CODE_ERROR_CREATE_CUSTOMER                // 26新增顧客失敗
+	ERROR_CODE_ERROR_UPDATE_CUSTOMER                // 27更新顧客失敗
+	ERROR_CODE_ERROR_DELETE_CUSTOMER                // 28刪除顧客失敗	
+
+	ERROR_CODE_ERROR_CREATE_TASK                  	// 29新增工作失敗
+	ERROR_CODE_ERROR_UPDATE_TASK                  	// 30更新工作失敗
+	ERROR_CODE_ERROR_DELETE_TASK                  	// 31刪除工作失敗	
 	ERROR_CODE_MAX
 )
 
@@ -100,6 +122,13 @@ var ErrorCode = [ERROR_CODE_MAX]CommonCodeInfo{
 	{-22, "權限不足"},
 	{-23, "新增會員失敗"},
 	{-24, "更新會員失敗"},
+	{-25, "刪除會員失敗"},
+	{-26, "新增顧客失敗"},
+	{-27, "更新顧客失敗"},
+	{-28, "刪除顧客失敗"},
+	{-29, "新增工作失敗"},
+	{-30, "更新工作失敗"},
+	{-31, "刪除工作失敗"},	
 }
 
 //=========================================================================================================================================================================

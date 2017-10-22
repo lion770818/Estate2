@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
+	//"time"
 
 	//"database/sql"
 	//_ "github.com/go-sql-driver/mysql"
@@ -18,10 +20,17 @@ import (
 	"html/template"
 )
 
+/*
 // #cgo LDFLAGS: -L. -lDllTest -lstdc++
 // #cgo CFLAGS: -I ./
+// #include <stdio.h>
+// #include <stdlib.h>
 // #include "DllTest.h"
 import "C"
+*/
+
+//
+// golang调用c++文件 http://www.cnblogs.com/lavin/p/golang-call-cpp-or-cc-file.html
 
 //=========================================================================================================================================================================
 // 參考 Go语言用WebSocket的简单例子          http://www.cnblogs.com/ghj1976/archive/2013/04/22/3035592.html
@@ -111,7 +120,9 @@ func WS_One1CloudGameCmd(ws *websocket.Conn) {
 			if err != nil {
 				One1CloudLib.CommonLog_WARNING_Println("底層解析json 失敗  err:", err)
 			}
-			responseMsg = string(DataMsgByte)
+			responseMsg := string(DataMsgByte)
+			//responseMsgTmp := string(DataMsgByte)
+			//responseMsg = strings.Replace(responseMsgTmp, "\\", "", -1)
 
 			One1CloudLib.CommonLog_INFO_Printf("底層回應格式 ClientID=%d, clientIP=%s, 回應訊息responseMsg=%s", socketClientInfo.ClientID, socketClientInfo.ClientIP, responseMsg)
 			if err = websocket.Message.Send(ws, responseMsg); err != nil {
@@ -176,18 +187,44 @@ func init() {
 
 }
 
+func sayhelloName(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()       //解析参数，默认是不会解析的
+	fmt.Println(r.Form) //这些信息是输出到服务器端的打印信息
+	fmt.Println("path", r.URL.Path)
+	fmt.Println("scheme", r.URL.Scheme)
+	fmt.Println(r.Form["url_long"])
+	for k, v := range r.Form {
+		fmt.Println("key:", k)
+		fmt.Println("val:", strings.Join(v, ""))
+	}
+	fmt.Fprintf(w, "Hello astaxie!") //这个写入到w的是输出到客户端的
+}
+
+func Test() {
+
+	log.Printf("============== http service Test 韓式  開始 ===============")
+	http.HandleFunc("/aaa", sayhelloName)    //设置访问的路由
+	err := http.ListenAndServe(":9090", nil) //设置监听的端口
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+
+	log.Printf("============== http service Test 韓式  結束 ===============")
+}
+
 //============================================================================================================
 // 主進入點
 func main() {
 
 	One1CloudLib.CommonLog_INFO_Println("============================golang啟動! Start...")
 
-	//	a := C.add(1, 2)
-	a := C.Add(1000, 2)
-	One1CloudLib.CommonLog_INFO_Printf("讀取 c++ a=%d", a)
+	//a := C.add(1, 2)
+	//a := C.Add(1000, 2)
+	//One1CloudLib.CommonLog_INFO_Printf("讀取 c++ a=%d", a)
 	// 初始化 物件
 	One1CloudLib.Common_Init()
 
+	//go Test()
 	//go Html_Test()
 
 	// websocket 模組啟動

@@ -405,7 +405,31 @@ func Common_LoadData() {
 	//Mysql_CommonTableInfo_IdGet()
 
 	// 桌子的Process ( 產魚腳本運行 or dosomething )
-	//go Table_Process()
+	go Table_Process()
+
+	//obj := CustomerInfo{}
+	//obj.CustomerName = "測試顧客"
+	obj := Task{}
+	obj.TaskName = "工作清單01"
+	DataMsgByte, err := json.Marshal(obj)
+	if err != nil {
+		CommonLog_WARNING_Println("json err:", err)
+	}
+
+	DataMsg := string(DataMsgByte)
+	CommonLog_INFO_Printf("DataMsg=%s", DataMsg)
+
+	obj0 := CommonPacketCmd{}
+	obj0.Cmd = "task_insert"
+	obj0.Sys = "system"
+	obj0.Data = DataMsg
+	DataMsgByte0, err0 := json.Marshal(obj0)
+	if err0 != nil {
+		CommonLog_WARNING_Println("json err:", err0)
+	}
+	DataMsg0 := string(DataMsgByte0)
+	CommonLog_INFO_Printf("組合出來的字串=%s", DataMsg0)
+	CommonLog_INFO_Printf("===========")
 
 }
 
@@ -483,6 +507,78 @@ func Common_DispatchSystem(ClientID int, Cmd string, DecodeData string) (string,
 			// 會員清單取得
 			ResponseData, Code = Common_MemberListGet(ClientID, DecodeData)
 			CommonLog_INFO_Printf("#會員清單取得 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NEW_CMD_CUSTOMER_INSERT:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NEW_CMD_CUSTOMER_INSERT")
+
+			// 新增顧客
+			ResponseData, Code = Common_CustomerInsert(ClientID, DecodeData)
+			CommonLog_INFO_Printf("#新增顧客 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NEW_CMD_CUSTOMER_UPDATE:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NEW_CMD_CUSTOMER_UPDATE")
+
+			// 更新顧客
+			ResponseData, Code = Common_CustomerUpdate(ClientID, DecodeData)
+			CommonLog_INFO_Printf("#更新顧客 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NET_CMD_CUSTOMER_DELETE:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NET_CMD_CUSTOMER_DELETE")
+
+			// 刪除顧客
+			ResponseData, Code = Common_CustomerDelete(ClientID, DecodeData)
+			CommonLog_INFO_Printf("#刪除顧客 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NET_CMD_CUSTOMER_LIST_GET:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NET_CMD_CUSTOMER_LIST_GET")
+
+			// 顧客清單取得
+			ResponseData, Code = Common_CustomerListGet(ClientID, DecodeData)
+			CommonLog_INFO_Printf("#顧客清單取得 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NEW_CMD_TASK_INSERT:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NEW_CMD_TASK_INSERT")
+
+			// 新增工作
+			ResponseData, Code = Common_TaskInsert(ClientID, DecodeData)
+			CommonLog_INFO_Printf("#新增工作 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NEW_CMD_TASK_UPDATE:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NEW_CMD_TASK_UPDATE")
+
+			// 更新工作
+			ResponseData, Code = Common_TaskUpdate(ClientID, DecodeData)
+			CommonLog_INFO_Printf("#更新工作 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NET_CMD_TASK_DELETE:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NET_CMD_TASK_DELETE")
+
+			// 刪除工作
+			ResponseData, Code = Common_TaskDelete(ClientID, DecodeData)
+			CommonLog_INFO_Printf("#刪除工作 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NET_CMD_TASK_LIST_GET:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NET_CMD_TASK_LIST_GET")
+
+			// 工作清單取得
+			ResponseData, Code = Common_TaskListGet(ClientID, DecodeData)
+			CommonLog_INFO_Printf("工作清單取得 Code:%d, ResponseData:%s", Code, ResponseData)
 		}
 
 	case NET_CMD_LOBBYINFO_GET:
