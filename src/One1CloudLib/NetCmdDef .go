@@ -7,8 +7,10 @@ package One1CloudLib
 //=========================================================================================================================================================================
 // 網路封包
 // 測試網址     http://www.websocket.org/echo.html
-// server ip = ws://192.168.43.75:1234/One1CloudGameCmd
-// server ip = ws://192.168.0.105:1234/One1CloudGameCmd
+// server ip = ws://192.168.43.75:1234/One1CloudGameCmd		//my
+// server ip = ws://192.168.0.105:1234/One1CloudGameCmd     //home
+// server ip = ws://192.168.50.143:1234/One1CloudGameCmd	//onmyhome
+
 const (
 	NET_CMD_ACCOUNT_CREATE = "account_create" // 帳號建立
 	NET_CMD_ACCOUNT_DELETE = "account_delete" // 帳號刪除
@@ -25,10 +27,15 @@ const (
 	NET_CMD_CUSTOMER_DELETE   = "customer_delete"   // 刪除顧客                     { "sys":"system","cmd":"customer_delete","sn":0,"isEncode":false,"data":"{\"user_id\":0,\"nickname\":\"\",\"customer_name\":\"測試顧客\",\"customer_identityNumber\":\"\"}"}
 	NET_CMD_CUSTOMER_LIST_GET = "customer_list_get" // 顧客清單取得				   {"sys":"system", "cmd":"customer_list_get", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1,\"account\":\"cat111\",\"password\":\"1234\" }"}
 
-	NEW_CMD_TASK_INSERT   = "task_insert"   // 新增工作						{"cmd":"task_insert","sys":"system","sn":0,"isEncode":false,"data":"{\"task_id\":0,\"user_id\":0,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單01\",\"task_describe\":\"工作描述\",\"menmo\":\"測試的memo\"}"}
-	NEW_CMD_TASK_UPDATE   = "task_update"   // 更新工作						{"cmd":"task_update","sys":"system","sn":0,"isEncode":false,"data":"{\"task_id\":2,\"user_id\":1,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單02\",\"task_describe\":\"工作描述2\",\"menmo\":\"更新的memo\"}"}
-	NET_CMD_TASK_DELETE   = "task_delete"   // 刪除工作                     {"cmd":"task_delete","sys":"system","sn":0,"isEncode":false,"data":"{\"task_id\":2,\"user_id\":1,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單02\",\"task_describe\":\"工作描述2\",\"menmo\":\"更新的memo\"}"}
-	NET_CMD_TASK_LIST_GET = "task_list_get" // 工作清單取得
+	NEW_CMD_TASK_INSERT   = "task_insert"   // 新增工作						{"sys":"system","cmd":"task_insert","sn":0,"isEncode":false,"data":"{\"task_id\":0,\"user_id\":0,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單01\",\"task_describe\":\"工作描述\",\"memo\":\"測試的memo\"}"}
+	NEW_CMD_TASK_UPDATE   = "task_update"   // 更新工作						{"sys":"system","cmd":"task_update","sn":0,"isEncode":false,"data":"{\"task_id\":2,\"user_id\":1,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單02\",\"task_describe\":\"工作描述2\",\"memo\":\"更新的memo\"}"}
+	NET_CMD_TASK_DELETE   = "task_delete"   // 刪除工作                     {"sys":"system","cmd":"task_delete","sn":0,"isEncode":false,"data":"{\"task_id\":2,\"user_id\":1,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單02\",\"task_describe\":\"工作描述2\",\"memo\":\"更新的memo\"}"}
+	NET_CMD_TASK_LIST_GET = "task_list_get" // 工作清單取得				   {"sys":"system", "cmd":"task_list_get", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1,\"account\":\"cat111\",\"password\":\"1234\" }"} 	
+
+	NEW_CMD_HOME_INSERT   = "home_insert"   // 新增房屋						{"sys":"system","cmd":"home_insert","sn":0,"isEncode":false,"data":"{\"user_id\":0,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"home_name\":\"工作清單01\",\"home_address\":\"我住在地球\",\"home_age\":1,\"home_footage\":2,\"home_price\":200,\"vip_rank\":1,\"memo\":\"測試的memo\"}"}
+	NEW_CMD_HOME_UPDATE   = "home_update"   // 更新房屋						{"sys":"system","cmd":"home_update","sn":0,"isEncode":false,"data":"{\"user_id\":1,\"nickname\":\"cat111\",\"home_id\":1,\"createtime\":\"\",\"updatetime\":\"\",\"home_name\":\"鼎藏1\",\"home_address\":\"我住在地球\",\"home_age\":1,\"home_footage\":2,\"home_price\":200,\"vip_rank\":1,\"memo\":\"測試的memo\"}"}
+	NET_CMD_HOME_DELETE   = "home_delete"   // 刪除房屋                     {"sys":"system","cmd":"home_delete","sn":0,"isEncode":false,"data":"{\"task_id\":2,\"user_id\":1,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單02\",\"task_describe\":\"工作描述2\",\"memo\":\"更新的memo\"}"}
+	NET_CMD_HMOE_LIST_GET = "home_list_get" // 房屋清單取得				   {"sys":"system","cmd":"home_list_get", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1,\"account\":\"cat111\",\"password\":\"1234\" }"} 	
 
 	//====== game ==========================================
 	NET_CMD_LOBBYINFO_GET = "lobbyInfoGet" // 取得大廳資訊			  		     {"sys":"system", "cmd":"lobbyInfoGet", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1}"}
@@ -92,6 +99,10 @@ const (
 	ERROR_CODE_ERROR_CREATE_TASK                  	// 29新增工作失敗
 	ERROR_CODE_ERROR_UPDATE_TASK                  	// 30更新工作失敗
 	ERROR_CODE_ERROR_DELETE_TASK                  	// 31刪除工作失敗	
+
+	ERROR_CODE_ERROR_CREATE_HOME                  	// 32新增房屋失敗
+	ERROR_CODE_ERROR_UPDATE_HOME                  	// 33更新房屋失敗
+	ERROR_CODE_ERROR_DELETE_HOME                  	// 34刪除房屋失敗	
 	ERROR_CODE_MAX
 )
 
@@ -129,6 +140,10 @@ var ErrorCode = [ERROR_CODE_MAX]CommonCodeInfo{
 	{-29, "新增工作失敗"},
 	{-30, "更新工作失敗"},
 	{-31, "刪除工作失敗"},	
+
+	{-32, "新增房屋失敗"},	
+	{-33, "更新房屋失敗"},	
+	{-34, "刪除房屋失敗"},	
 }
 
 //=========================================================================================================================================================================

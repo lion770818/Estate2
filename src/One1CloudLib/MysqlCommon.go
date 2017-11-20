@@ -14,6 +14,17 @@ import (
 	//"encoding/json"
 )
 
+const Table_TableInfo string = "tableinfo" // 桌子資料表
+const Table_SeatInfo string = "seatinfo"   // 座位資料表
+
+const Table_Memberinfo string = "memberinfo"     // 會員表
+const Table_Platforminfo string = "platforminfo" // 平台表
+const Table_Homeinfo string = "homeinfo"         // 房屋表
+
+const Table_TransferLog string = "transferlog"  // 平台轉點交易Log表
+const Table_GameLogSlot string = "gamelog_slot" // 遊戲紀錄slot表
+const Table_GameLogFish string = "gamelog_fish" // 遊戲紀錄fish表
+
 var database = &sql.DB{}
 
 func Mysql_Init() {
@@ -1217,12 +1228,12 @@ func Mysql_CommonCustomerInfo_Update(User_ID int64, customer CustomerInfo) bool 
 
 	customer.UpdateTime = Common_NowTimeGet()
 
-	SqlQuery = fmt.Sprintf("update customer set UpdateTime='%s', CustomerName='%s', CustomerAge=%d, CustomerGender='%s', CustomerIdentityNumber='%s', CustomerPhoneNumber='%s', CustomerAddress='%s', CustomerHomeID=%d, CustomerHomeAge=%d, CustomerHomeFootage=%f, CustomerHomePrice=%d, Vip_rank=%d where User_ID=%d AND CustomerName='%s' AND CustomerIdentityNumber='%s'; ",
+	SqlQuery = fmt.Sprintf("update customer set UpdateTime='%s', CustomerName='%s', CustomerAge=%d, CustomerGender='%s', CustomerIdentityNumber='%s', CustomerPhoneNumber='%s', CustomerAddress='%s', CustomerHomeID=%d, CustomerHomeAge=%d, CustomerHomeFootage=%f, CustomerHomePrice=%d, Vip_rank=%d where User_ID=%d AND CustomerID=%d; ",
 		customer.UpdateTime,
 		customer.CustomerName, customer.CustomerAge, customer.CustomerGender, customer.CustomerIdentityNumber,
 		customer.CustomerPhoneNumber, customer.CustomerAddress,
 		customer.CustomerHomeID, customer.CustomerHomeAge, customer.CustomerHomeFootage, customer.CustomerHomePrice, customer.Vip_rank,
-		User_ID, customer.CustomerName, customer.CustomerIdentityNumber)
+		User_ID, customer.CustomerID)
 	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
 
 	result, err := database.Exec(SqlQuery)
@@ -1259,14 +1270,14 @@ func Mysql_CommonCustomerInfo_Delete(User_ID int64, customer CustomerInfo) bool 
 
 	var ret bool = false
 	var SqlQuery string = ""
-	CommonLog_INFO_Printf("#Mysql_CommonCustomerInfo_Delete (顧客刪除) User_ID=%d, CustomerName=%s, CustomerIdentityNumber=%s",
-		User_ID, customer.CustomerName, customer.CustomerIdentityNumber)
+	CommonLog_INFO_Printf("#Mysql_CommonCustomerInfo_Delete (顧客刪除) User_ID=%d, CustomerID=%d, CustomerName=%s, CustomerIdentityNumber=%s",
+		User_ID, customer.CustomerID, customer.CustomerName, customer.CustomerIdentityNumber)
 
 	customer.CreateTime = Common_NowTimeGet()
 	customer.UpdateTime = Common_NowTimeGet()
 
-	SqlQuery = fmt.Sprintf("delete from customer where User_ID=%d AND CustomerName='%s' AND CustomerIdentityNumber='%s';",
-		User_ID, customer.CustomerName, customer.CustomerIdentityNumber)
+	SqlQuery = fmt.Sprintf("delete from customer where User_ID=%d AND CustomerID=%d;",
+		User_ID, customer.CustomerID)
 	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
 	result, err := database.Exec(SqlQuery) // ? = placeholder
 	if err != nil {
@@ -1309,7 +1320,7 @@ func Mysql_CommonCustomerListGet(member MemberInfo) (ResponseInfo_CustomerInfoLi
 
 	var SqlQuery string = ""
 
-	SqlQuery = fmt.Sprintf("SELECT User_ID, NickName , CreateTime, UpdateTime, CustomerName, CustomerAge, CustomerGender, CustomerIdentityNumber, CustomerPhoneNumber, CustomerAddress, CustomerHomeID, CustomerHomeAge, CustomerHomeFootage, CustomerHomePrice, Vip_rank FROM customer where User_ID=%d order by User_ID DESC;", member.User_ID)
+	SqlQuery = fmt.Sprintf("SELECT CustomerID, User_ID, NickName , CreateTime, UpdateTime, CustomerName, CustomerAge, CustomerGender, CustomerIdentityNumber, CustomerPhoneNumber, CustomerAddress, CustomerHomeID, CustomerHomeAge, CustomerHomeFootage, CustomerHomePrice, Vip_rank FROM customer where User_ID=%d order by User_ID DESC;", member.User_ID)
 	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
 	stmtIns, err2 := database.Query(SqlQuery) // ? = placeholder
 	if err2 != nil {
@@ -1323,7 +1334,7 @@ func Mysql_CommonCustomerListGet(member MemberInfo) (ResponseInfo_CustomerInfoLi
 	for stmtIns.Next() {
 
 		customer := CustomerInfo{} // 用來接的物件
-		if err2 := stmtIns.Scan(&customer.User_ID, &customer.NickName, &customer.CreateTime,
+		if err2 := stmtIns.Scan(&customer.CustomerID, &customer.User_ID, &customer.NickName, &customer.CreateTime,
 			&customer.UpdateTime, &customer.CustomerName, &customer.CustomerAge, &customer.CustomerGender,
 			&customer.CustomerIdentityNumber, &customer.CustomerPhoneNumber, &customer.CustomerAddress, &customer.CustomerHomeID,
 			&customer.CustomerHomeAge, &customer.CustomerHomeFootage, &customer.CustomerHomePrice, &customer.Vip_rank); err2 != nil {
@@ -1333,9 +1344,10 @@ func Mysql_CommonCustomerListGet(member MemberInfo) (ResponseInfo_CustomerInfoLi
 		}
 		ret = true
 
-		CommonLog_INFO_Printf("User_ID=%d, NickName=%s is CustomerName=%s, CustomerIdentityNumber=%s CustomerPhoneNumber=%s CustomerAddress=%s",
-			customer.User_ID, customer.NickName, customer.CustomerName, customer.CustomerIdentityNumber,
+		CommonLog_INFO_Printf("CustomerID=%d, User_ID=%d, NickName=%s is CustomerName=%s, CustomerIdentityNumber=%s CustomerPhoneNumber=%s CustomerAddress=%s",
+			customer.CustomerID, customer.User_ID, customer.NickName, customer.CustomerName, customer.CustomerIdentityNumber,
 			customer.CustomerPhoneNumber, customer.CustomerAddress)
+
 		CustomerInfoList.Customer_List[CustomerInfoList.Data_Count] = customer
 		CustomerInfoList.Data_Count++
 
@@ -1473,14 +1485,13 @@ func Mysql_CommonTask_Delete(User_ID int64, task Task) bool {
 
 //=========================================================================================================================================================================
 // 工作清單取得 task
-func Mysql_CommonTaskListGet(member MemberInfo) (ResponseInfo_TaskList, bool) {
+func Mysql_CommonTaskListGet(member MemberInfo) ResponseInfo_TaskList {
 
-	var ret bool = false
 	var (
 		TaskList ResponseInfo_TaskList
 	)
 
-	CommonLog_INFO_Printf("#Mysql_CommonMemberListGet (工作清單取得) User_ID=%d", member.User_ID)
+	CommonLog_INFO_Printf("#Mysql_CommonTaskListGet (工作清單取得) User_ID=%d", member.User_ID)
 
 	var SqlQuery string = ""
 
@@ -1490,7 +1501,6 @@ func Mysql_CommonTaskListGet(member MemberInfo) (ResponseInfo_TaskList, bool) {
 	if err2 != nil {
 		ErrorStr2 := err2.Error()
 		CommonLog_WARNING_Println(ErrorStr2)
-		ret = false
 	}
 
 	TaskList.Data_Count = 0
@@ -1501,10 +1511,8 @@ func Mysql_CommonTaskListGet(member MemberInfo) (ResponseInfo_TaskList, bool) {
 		if err2 := stmtIns.Scan(&task.User_ID, &task.NickName, &task.CreateTime, &task.UpdateTime, &task.TaskID, &task.TaskName,
 			&task.TaskDescribe, &task.Memo); err2 != nil {
 			CommonLog_WARNING_Println(err2)
-			ret = false
 			break
 		}
-		ret = true
 
 		CommonLog_INFO_Printf("User_ID=%d, NickName=%s is CreateTime=%s, UpdateTime=%s TaskID=%d TaskName=%s TaskDescribe=%s, Memo=%s",
 			task.User_ID, task.NickName, task.CreateTime, task.UpdateTime, task.TaskID, task.TaskName, task.TaskDescribe, task.Memo)
@@ -1515,5 +1523,175 @@ func Mysql_CommonTaskListGet(member MemberInfo) (ResponseInfo_TaskList, bool) {
 
 	defer stmtIns.Close() // Close the statement when we leave main() / the program
 
-	return TaskList, ret
+	return TaskList
+}
+
+//=========================================================================================================================================================================
+// 房屋資料新增
+func Mysql_CommonHome_Insert(home HomeInfo) bool {
+
+	var ret bool = false
+	var SqlQuery string = ""
+	CommonLog_INFO_Printf("#Mysql_CommonHome_Insert (房屋資料新增)")
+
+	home.CreateTime = Common_NowTimeGet()
+	home.UpdateTime = Common_NowTimeGet()
+
+	SqlQuery = fmt.Sprintf("INSERT INTO %s(User_ID,NickName,CreateTime,UpdateTime,HomeName,HomeAddress,HomeAge,HomeFootage,HomePrice,Vip_rank, Memo) values(?,?,?,?,?,?,?,?,?,?,?)",
+		Table_Homeinfo)
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+
+	result, err := database.Exec(SqlQuery, home.User_ID, home.NickName, home.CreateTime, home.UpdateTime, home.HomeName,
+		home.HomeAddress, home.HomeAge, home.HomeFootage, home.HomePrice, home.Vip_rank, home.Memo)
+	if err != nil {
+		ErrorStr := err.Error()
+		CommonLog_WARNING_Println(ErrorStr)
+		ret = false
+	} else {
+		ret = true
+
+		num, err := result.RowsAffected()
+		if err != nil {
+			CommonLog_INFO_Printf("fetch row affected failed:", err.Error())
+			ret = false
+		}
+
+		if num > 0 {
+			ret = true
+		} else {
+			ret = false
+		}
+
+		CommonLog_INFO_Printf("#Mysql_CommonHome_Insert record number=%d ret=%v", num, ret)
+	}
+
+	//defer database.Close() // Close the statement when we leave main() / the program
+
+	return ret
+}
+
+//=========================================================================================================================================================================
+// 房屋資料更新 (這邊嘗試過 用? 去組指令, 但是出錯時候 列印指令拿到一堆 ??? 所以還是用傳統的 組好mysql字串, 方便除錯 )
+func Mysql_CommonHome_Update(User_ID int64, home HomeInfo) bool {
+
+	var ret bool = false
+	var SqlQuery string = ""
+	CommonLog_INFO_Printf("#Mysql_CommonHome_Update (房屋資料更新)")
+
+	home.UpdateTime = Common_NowTimeGet()
+
+	SqlQuery = fmt.Sprintf("update %s set User_ID=?, NickName=?, UpdateTime=?, HomeName=?, HomeAddress=?, HomeAge=?, HomeFootage=?, HomePrice=?, Vip_rank=?, Memo=?  where User_ID=%d AND HomeID=%d; ",
+		Table_Homeinfo, User_ID, home.HomeID)
+
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+
+	result, err := database.Exec(SqlQuery, home.User_ID, home.NickName, home.UpdateTime, home.HomeName,
+		home.HomeAddress, home.HomeAge, home.HomeFootage, home.HomePrice, home.Vip_rank, home.Memo)
+	if err != nil {
+		ErrorStr := err.Error()
+		CommonLog_WARNING_Println(ErrorStr)
+		ret = false
+	} else {
+		ret = true
+
+		num, err := result.RowsAffected()
+		if err != nil {
+			CommonLog_INFO_Printf("fetch row affected failed:", err.Error())
+			ret = false
+		}
+
+		if num > 0 {
+			ret = true
+		} else {
+			ret = false
+		}
+
+		CommonLog_INFO_Printf("#Mysql_CommonHome_Update record number=%d ret=%v", num, ret)
+	}
+
+	//defer database.Close() // Close the statement when we leave main() / the program
+
+	return ret
+}
+
+//=========================================================================================================================================================================
+// 房屋刪除
+func Mysql_CommonHome_Delete(User_ID int64, home HomeInfo) bool {
+
+	var ret bool = false
+	var SqlQuery string = ""
+	CommonLog_INFO_Printf("#Mysql_CommonHome_Delete (房屋刪除) User_ID=%d, NickName=%s, HomeID=%d, HomeName=%s",
+		User_ID, home.NickName, home.HomeID, home.HomeName)
+
+	SqlQuery = fmt.Sprintf("delete from %s where User_ID=%d AND HomeID=%d AND HomeName=?;", Table_Homeinfo, User_ID, home.HomeID)
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+	result, err := database.Exec(SqlQuery, home.HomeName) // ? = placeholder
+	if err != nil {
+		ErrorStr := err.Error()
+		CommonLog_WARNING_Println(ErrorStr)
+		ret = false
+	} else {
+		ret = true
+
+		num, err := result.RowsAffected()
+		if err != nil {
+			CommonLog_INFO_Printf("fetch row affected failed:", err.Error())
+			ret = false
+		}
+
+		if num > 0 {
+			ret = true
+		} else {
+			ret = false
+		}
+
+		CommonLog_INFO_Printf("Mysql_CommonHome_Delete record number=%d ret=%v", num, ret)
+	}
+
+	//defer result.Close() // Close the statement when we leave main() / the program
+
+	return ret
+}
+
+//=========================================================================================================================================================================
+// 房屋清單取得 Home
+func Mysql_CommonHomeListGet(member MemberInfo) ResponseInfo_HomeInfoList {
+
+	var (
+		HomeList ResponseInfo_HomeInfoList
+	)
+
+	CommonLog_INFO_Printf("#Mysql_CommonHomeListGet (房屋清單取得) User_ID=%d", member.User_ID)
+
+	var SqlQuery string = ""
+
+	SqlQuery = fmt.Sprintf("SELECT HomeID,User_ID,NickName,CreateTime,UpdateTime,HomeName,HomeAddress,HomeAge,HomeFootage,HomePrice,Vip_rank, Memo FROM %s where User_ID=%d order by HomeID DESC;", Table_Homeinfo, member.User_ID)
+	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+	stmtIns, err2 := database.Query(SqlQuery) // ? = placeholder
+	if err2 != nil {
+		ErrorStr2 := err2.Error()
+		CommonLog_WARNING_Println(ErrorStr2)
+	}
+
+	HomeList.Data_Count = 0
+	HomeList.Home_List = make(map[int]HomeInfo)
+	for stmtIns.Next() {
+
+		home := HomeInfo{} // 用來接的物件
+		if err2 := stmtIns.Scan(&home.HomeID, &home.User_ID, &home.NickName, &home.CreateTime, &home.UpdateTime, &home.HomeName, &home.HomeAddress,
+			&home.HomeAge, &home.HomeFootage, &home.HomePrice, &home.Vip_rank, &home.Memo); err2 != nil {
+			CommonLog_WARNING_Println(err2)
+			break
+		}
+
+		CommonLog_INFO_Printf("User_ID=%d, NickName=%s, CreateTime=%s, UpdateTime=%s HomeID=%d HomeName=%s HomeAddress=%s, HomePrice=%f, Memo=%s",
+			home.User_ID, home.NickName, home.CreateTime, home.UpdateTime, home.HomeID, home.HomeName, home.HomeAddress, home.HomePrice, home.Memo)
+		HomeList.Home_List[HomeList.Data_Count] = home
+		HomeList.Data_Count++
+
+	}
+
+	defer stmtIns.Close() // Close the statement when we leave main() / the program
+
+	return HomeList
 }

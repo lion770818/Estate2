@@ -66,7 +66,6 @@ type MemberInfo struct {
 type ResponseInfo_MemberInfoList struct {
 	Data_Count  int                `json:"data_count"`  // 資料筆數
 	Member_List map[int]MemberInfo `json:"member_list"` // 會員
-	//Member_List []MemberInfo    `json:"member_list"`  	// 會員
 }
 
 //=========================================================================================================================================================================
@@ -74,33 +73,33 @@ type ResponseInfo_MemberInfoList struct {
 type CustomerInfo struct {
 
 	//================= db =============================
-	User_ID  int64  `json:"user_id"`  //玩家帳號編號(哪個員工增加的顧客)
-	NickName string `json:"nickname"` //玩家名稱(員工的名稱)
+	CustomerID int    `json:"customer_id"` //顧客id
+	User_ID    int64  `json:"user_id"`     //玩家帳號編號(哪個員工增加的顧客)
+	NickName   string `json:"nickname"`    //玩家名稱(員工的名稱)
 
 	CreateTime string `json:"createtime"` //資料建立時間
 	UpdateTime string `json:"updatetime"` //資料更新時間
 
 	CustomerName           string `json:"customer_name"`           //顧客名稱
 	CustomerAge            int    `json:"customer_age"`            //顧客年紀
-	CustomerGender         string `json:"customer_gender"`         //顧客性別
+	CustomerGender         string `json:"customer_gender"`         //顧客性別 M:男 F:女
 	CustomerIdentityNumber string `json:"customer_identityNumber"` //身分證字號
 
 	CustomerPhoneNumber string `json:"customer_phone_number"` //顧客電話號碼
 	CustomerAddress     string `json:"customer_address"`      //顧客地址
 
 	CustomerHomeID      int     `json:"customer_home_id"`      //顧客房屋物件id編號
-	CustomerHomeAge     int     `json:"customer_home_age"`     //顧客房屋年紀
+	CustomerHomeAge     int     `json:"customer_home_age"`     //顧客房屋屋齡
 	CustomerHomeFootage float32 `json:"customer_home_footage"` //顧客房屋坪數
 	CustomerHomePrice   int     `json:"customer_home_price"`   //顧客房屋價格
 
-	Vip_rank int `json:"vip_rank"` //會員等級 0:實習生 1:一般員工 2:組長 3:主任 4:經理 5:人資 6:會計 7:最高管理者 8:董事長
+	Vip_rank int `json:"vip_rank"` //顧客等級 0:一般 1:熟客 2:VIP
 
 }
-
 
 //=========================================================================================================================================================================
 // 顧客結構列表 ( data 內的資料 )
 type ResponseInfo_CustomerInfoList struct {
-	Data_Count  int                		`json:"data_count"`  	// 資料筆數
-	Customer_List map[int]CustomerInfo 	`json:"customer_list"` 	// 顧客
+	Data_Count    int                  `json:"data_count"`    // 資料筆數
+	Customer_List map[int]CustomerInfo `json:"customer_list"` // 顧客
 }

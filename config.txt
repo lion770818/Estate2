@@ -1,5 +1,5 @@
 {
-	"Server_Port":1234,
+	"Server_Port":3000,
 	"Mysql_IP":"localhost",
 	"Mysql_Account":"root",
 	"Mysql_Password":"1234",

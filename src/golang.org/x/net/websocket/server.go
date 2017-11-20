@@ -99,9 +99,11 @@ func (s Server) serveWebSocket(w http.ResponseWriter, req *http.Request) {
 type Handler func(*Conn)
 
 func checkOrigin(config *Config, req *http.Request) (err error) {
+	//fmt.Fprintln("11111")
 	config.Origin, err = Origin(config, req)
 	if err == nil && config.Origin == nil {
-		return fmt.Errorf("null origin")
+		//	return fmt.Errorf("null origin")
+		fmt.Errorf("null origin")
 	}
 	return err
 }

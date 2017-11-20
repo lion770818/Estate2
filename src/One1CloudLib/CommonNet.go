@@ -12,7 +12,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const VERSION string = "1.0.0" // Server 版本
+const VERSION string = "1.0.1" // Server 版本
 const CLIENT_MAX int = 5000    // 最大的client連線數, 超過此連線束後, 一律往最後面塞, 但是找空位時, 只會找 0~5000, 所以先不要超過 CLIENT_MAX 值阿 XD
 
 type ClientConn struct {
@@ -431,6 +431,16 @@ func Common_LoadData() {
 	CommonLog_INFO_Printf("組合出來的字串=%s", DataMsg0)
 	CommonLog_INFO_Printf("===========")
 
+	home := HomeInfo{}
+	home.HomeName = "test"
+	home.HomeAge = 1
+	home.HomeFootage = 20
+	home.HomeAddress = "地球"
+	home.HomePrice = 230
+	home.User_ID = 1
+	home.NickName = "cat111"
+	home.Vip_rank = 1
+	//Mysql_CommonHome_Insert(home)
 }
 
 //=========================================================================================================================================================================
@@ -579,6 +589,43 @@ func Common_DispatchSystem(ClientID int, Cmd string, DecodeData string) (string,
 			// 工作清單取得
 			ResponseData, Code = Common_TaskListGet(ClientID, DecodeData)
 			CommonLog_INFO_Printf("工作清單取得 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+
+	case NEW_CMD_HOME_INSERT:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NEW_CMD_HOME_INSERT")
+
+			// 新增房屋
+			ResponseData, Code = Common_HomeInsert(ClientID, DecodeData)
+			CommonLog_INFO_Printf("#新增房屋 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NEW_CMD_HOME_UPDATE:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NEW_CMD_HOME_UPDATE")
+
+			// 更新房屋
+			ResponseData, Code = Common_HomeUpdate(ClientID, DecodeData)
+			CommonLog_INFO_Printf("#更新房屋 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NET_CMD_HOME_DELETE:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NET_CMD_HOME_DELETE")
+
+			// 刪除房屋
+			ResponseData, Code = Common_HomeDelete(ClientID, DecodeData)
+			CommonLog_INFO_Printf("#刪除房屋 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NET_CMD_HMOE_LIST_GET:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NET_CMD_HMOE_LIST_GET")
+
+			// 房屋清單取得
+			ResponseData, Code = Common_HomeListGet(ClientID, DecodeData)
+			CommonLog_INFO_Printf("房屋清單取得 Code:%d, ResponseData:%s", Code, ResponseData)
 		}
 
 	case NET_CMD_LOBBYINFO_GET:

@@ -159,6 +159,14 @@ func WS_One1CloudGameCmd(ws *websocket.Conn) {
 
 }
 
+func EchoHandler(h websocket.Handler) http.Handler {
+	s := websocket.Server{
+		Handler:   h,
+		Handshake: nil,
+	}
+	return s
+}
+
 //=========================================================================================================================================================================
 // websocket 初始化
 func websocket_Init() {
@@ -168,7 +176,7 @@ func websocket_Init() {
 	http.Handle("/", http.FileServer(http.Dir("."))) // <-- note this line
 
 	// 有修改了交握檢查 checkOrigin
-	http.Handle("/One1CloudGameCmd", websocket.Handler(WS_One1CloudGameCmd))
+	http.Handle("/One1CloudGameCmd", EchoHandler(WS_One1CloudGameCmd))
 
 	// 監聽的port 日後變成 讀取txt 檔案
 	server_port := fmt.Sprintf(":%d", One1CloudLib.ServerConfig.Server_Port)

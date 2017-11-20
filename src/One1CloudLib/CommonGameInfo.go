@@ -105,8 +105,8 @@ type SeatInfo struct {
 	Progress_water   int64  // 獎項水池[Y]
 	Progress_odds    int64  // 獎項倍數[Y]
 	Progress_support int64  // 獎項貢獻[Y]
-	Wait_item_id     string // 待中獎項[Y]
 
+	Wait_item_id     string // 待中獎項[Y]
 	Wait_item_seat  string // 待中座位[Y]
 	Wait_item_odds  int64  // 待中倍數[Y]
 	Wait_item_value int64  // 待中分數[Y]
