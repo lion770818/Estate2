@@ -7,9 +7,9 @@ package One1CloudLib
 //=========================================================================================================================================================================
 // 網路封包
 // 測試網址     http://www.websocket.org/echo.html
-// server ip = ws://192.168.43.75:1234/One1CloudGameCmd		//my
-// server ip = ws://192.168.0.105:1234/One1CloudGameCmd     //home
-// server ip = ws://192.168.50.143:1234/One1CloudGameCmd	//onmyhome
+// server ip = ws://192.168.43.75:3000/One1CloudGameCmd		//my
+// server ip = ws://192.168.0.105:3000/One1CloudGameCmd     //home
+// server ip = ws://192.168.50.143:3000/One1CloudGameCmd	//onmyhome
 
 const (
 	NET_CMD_ACCOUNT_CREATE = "account_create" // 帳號建立
@@ -37,6 +37,7 @@ const (
 	NET_CMD_HOME_DELETE   = "home_delete"   // 刪除房屋                     {"sys":"system","cmd":"home_delete","sn":0,"isEncode":false,"data":"{\"task_id\":2,\"user_id\":1,\"nickname\":\"\",\"createtime\":\"\",\"updatetime\":\"\",\"task_name\":\"工作清單02\",\"task_describe\":\"工作描述2\",\"memo\":\"更新的memo\"}"}
 	NET_CMD_HMOE_LIST_GET = "home_list_get" // 房屋清單取得				   {"sys":"system","cmd":"home_list_get", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1,\"account\":\"cat111\",\"password\":\"1234\" }"} 	
 
+	NET_CMD_MESSAGE_BOARD_INSERT = "message_board_insert" // 留言板新增
 	//====== game ==========================================
 	NET_CMD_LOBBYINFO_GET = "lobbyInfoGet" // 取得大廳資訊			  		     {"sys":"system", "cmd":"lobbyInfoGet", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1}"}
 	NET_CMD_ENTER_GAME    = "enter_game"   // 進入遊戲(autoMatch)				  {"sys":"game", "cmd":"enter_game", "sn":12345, "isEncode":false,"data":"{\"platform_id\":1,\"lobby_id\":1,\"game_id\":1001,\"udid\":1,\"user_id\":1,\"channel\":\"123\",\"publish_ver\":\"1.0.0\",\"refresh\":\"0\",\"balance_ci\":3000 }"}

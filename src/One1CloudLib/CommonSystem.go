@@ -331,9 +331,15 @@ func Common_MemberDelete(ClientID int, DecodeData string) (string, int) {
 			// 讀取玩家的會員資料
 			pMember := &pClient.Member // 取址
 
-			if pMember.Vip_rank <= int(MEMBER_HUMAN_RESOURCES_SUPERVISOR) {
+			if pMember.Vip_rank < int(MEMBER_HUMAN_RESOURCES_SUPERVISOR) {
 				Code = int(ERROR_CODE_ERROR_PERMISSION_DENIED)
 				CommonLog_WARNING_Printf("#Code=%d, errorMsg=%s", Code, ErrorCode[Code].Message)
+				return DataMsg, Code
+			}
+
+			if pMember.User_ID == DeleteMember.User_ID {
+				Code = int(ERROR_CODE_ERROR_DELETE_MEMBER)
+				CommonLog_WARNING_Printf("#Code=%d, errorMsg=%s 不能刪除自己", Code, ErrorCode[Code].Message)
 				return DataMsg, Code
 			}
 
@@ -717,27 +723,17 @@ func Common_CustomerListGet(ClientID int, DecodeData string) (string, int) {
 
 			// 取得顧客清單
 			CustomerList, ret := Mysql_CommonCustomerListGet(*pMember)
-			if ret == false {
-				Code = int(ERROR_CODE_NO_FIND_ACCOUNT)
-				CommonLog_WARNING_Printf("#Code=%d, errorMsg=%s", Code, ErrorCode[Code].Message)
-				return DataMsg, Code
-			}
-
-			CommonLog_INFO_Printf("取得顧客清單成功 Account=%s, Password=%s, CustomerList Count=%d",
-				Auth.Account, Auth.Password, CustomerList.Data_Count)
+			CommonLog_INFO_Printf("取得顧客清單 Account=%s, Password=%s, CustomerList Count=%d, ret=%t",
+				Auth.Account, Auth.Password, CustomerList.Data_Count, ret)
 
 			// 回傳給 client
 			// 物件轉成json字串
-			if ret == true {
-
-				// 物件轉成json字串
-				DataMsgByte, err := json.Marshal(CustomerList)
-				if err != nil {
-					CommonLog_WARNING_Printf("json err:", err)
-				}
-
-				DataMsg = string(DataMsgByte)
+			DataMsgByte, err := json.Marshal(CustomerList)
+			if err != nil {
+				CommonLog_WARNING_Printf("json err:", err)
 			}
+
+			DataMsg = string(DataMsgByte)
 
 		} else {
 			Code = int(ERROR_CODE_NO_LOGIN)
@@ -1005,6 +1001,7 @@ func Common_TaskListGet(ClientID int, DecodeData string) (string, int) {
 	CommonLog_INFO_Printf("#Common_TaskListGet Code=%d, DataMsg=%s", Code, DataMsg)
 	return DataMsg, Code
 }
+
 //==================================
 //==================================
 //==================================
@@ -1013,7 +1010,7 @@ func Common_TaskListGet(ClientID int, DecodeData string) (string, int) {
 //=========================================================================================================================================================================
 // 新增房屋
 func Common_HomeInsert(ClientID int, DecodeData string) (string, int) {
-	
+
 	var DataMsg string = "unknow"
 	var Code int = int(ERROR_CODE_SUCCESS) // 回應值
 
@@ -1265,5 +1262,72 @@ func Common_HomeListGet(ClientID int, DecodeData string) (string, int) {
 	}
 
 	CommonLog_INFO_Printf("#Common_HomeListGet Code=%d, DataMsg=%s", Code, DataMsg)
+	return DataMsg, Code
+}
+
+//=========================================================================================================================================================================
+// 留言板新增
+func Common_MessageBoardInsert(ClientID int, DecodeData string) (string, int) {
+
+	var DataMsg string = "unknow"
+	var Code int = int(ERROR_CODE_SUCCESS) // 回應值
+
+	CommonLog_INFO_Printf("#收到封包 Common_MessageBoardInsert ClientID=%d, DecodeData=%s", ClientID, DecodeData)
+
+	// 收到的資料 json轉換
+	receiveMsgByte := []byte(DecodeData)
+	messageBoard := MessageBoard{} // 用來接的物件
+	err := json.Unmarshal(receiveMsgByte, &messageBoard)
+	if err != nil {
+		Code = int(ERROR_CODE_ERROR_JSON_MARSHAL)
+		CommonLog_WARNING_Printf("#Common_MessageBoardInsert Code=%d, errorMsg=%s", Code, ErrorCode[Code].Message)
+		return DataMsg, Code
+	} else {
+
+		CommonLog_INFO_Printf("#收到封包 Common_MessageBoardInsert MessageBoardName=%s, User_ID=%d, NickName=%s, HomeName=%s, Memo=%s",
+			messageBoard.MessageBoardName, messageBoard.User_ID, messageBoard.NickName, messageBoard.HomeName, messageBoard.Memo)
+
+		// 檢查玩家是否有登入
+		pClient := Common_ClientInfoGet(ClientID)
+		if pClient.IsUse == true && pClient.Member.Status == 1 {
+
+			// 讀取玩家的會員資料
+			pMember := &pClient.Member // 取址
+
+			if pMember.Vip_rank <= int(MEMBER_NOEMAL_EMPLOYEE) {
+				Code = int(ERROR_CODE_ERROR_PERMISSION_DENIED)
+				CommonLog_WARNING_Printf("#Common_MessageBoardInsert Code=%d, errorMsg=%s", Code, ErrorCode[Code].Message)
+				return DataMsg, Code
+			}
+
+			// 新增留言板
+			messageBoard.User_ID = pMember.User_ID
+			messageBoard.NickName = pMember.NickName
+			messageBoard.CreateTime = Common_NowTimeGet()
+			messageBoard.UpdateTime = Common_NowTimeGet()
+
+			ret := Mysql_MessageBoard_Insert(messageBoard)
+			if ret == false {
+				Code = int(ERROR_CODE_ERROR_CREATE_HOME)
+				CommonLog_WARNING_Printf("#Common_MessageBoardInsert Code=%d, errorMsg=%s", Code, ErrorCode[Code].Message)
+				return DataMsg, Code
+			}
+
+			// 回傳給 client
+			// 物件轉成json字串
+			DataMsgByte, err := json.Marshal(messageBoard)
+			if err != nil {
+				CommonLog_WARNING_Printf("json err:", err)
+				Code = int(ERROR_CODE_DATA_UPDATE_FAIL)
+			}
+
+			DataMsg = string(DataMsgByte)
+
+		} else {
+			Code = int(ERROR_CODE_NO_LOGIN)
+		}
+	}
+
+	CommonLog_INFO_Printf("#Common_MessageBoardInsert Code=%d, DataMsg=%s", Code, DataMsg)
 	return DataMsg, Code
 }

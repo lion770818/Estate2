@@ -29,6 +29,7 @@ CREATE TABLE `homeinfo` (
   `CreateTime` datetime NOT NULL COMMENT '房屋新增時間',
   `UpdateTime` datetime NOT NULL COMMENT '房屋更新時間',
   `HomeName` varchar(60) NOT NULL COMMENT '房屋名稱',
+  `HomeArea` varchar(80) NOT NULL COMMENT '房屋地區',
   `HomeAddress` varchar(80) NOT NULL COMMENT '房屋地址',
   `HomeAge` int(11) NOT NULL COMMENT '屋齡',
   `HomeFootage` float NOT NULL COMMENT '房屋坪數',
@@ -37,7 +38,7 @@ CREATE TABLE `homeinfo` (
   `Memo` varchar(45) NOT NULL,
   PRIMARY KEY (`HomeID`),
   UNIQUE KEY `HomeID_UNIQUE` (`HomeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='紀錄每個房屋資料';
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COMMENT='紀錄每個房屋資料';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -46,7 +47,7 @@ CREATE TABLE `homeinfo` (
 
 LOCK TABLES `homeinfo` WRITE;
 /*!40000 ALTER TABLE `homeinfo` DISABLE KEYS */;
-INSERT INTO `homeinfo` VALUES (1,1,'cat1111','2017-11-10 21:25:21','2017-11-23 08:27:57','鼎藏1','我住在地球',1,2,200,7,'測試的memo'),(3,1,'cat1111','2017-11-27 00:43:48','2017-11-27 00:44:29','cat-home','tw',50,100,200,6,'ccccc');
+INSERT INTO `homeinfo` VALUES (7,1,'cat1112t','2017-11-28 00:47:29','2017-11-28 00:47:29','板橋新巨蛋','','11',11,11,11,0,'qq'),(8,1,'cat1112t','2017-11-28 00:47:29','2017-11-28 00:47:29','板橋新巨蛋2','','11',11,11,11,0,'qq'),(9,1,'cat1112t','2017-11-28 00:47:29','2017-11-28 00:47:29','板橋新巨蛋3','','11',11,11,11,0,'qq'),(10,1,'cat1112t','2017-11-28 00:47:29','2017-11-28 00:47:29','板橋新巨蛋4','','11',11,11,11,0,'qq'),(11,1,'cat1112t','2017-11-28 00:47:29','2017-11-28 00:47:29','板橋新巨蛋5','','11',11,11,11,0,'qq'),(12,1,'cat1112t','2017-11-28 00:47:29','2017-11-28 00:47:29','板橋新巨蛋6','','11',11,11,11,0,'qq');
 /*!40000 ALTER TABLE `homeinfo` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -59,4 +60,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-27  0:49:06
+-- Dump completed on 2017-12-18 22:38:34

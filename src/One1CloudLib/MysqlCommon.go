@@ -25,6 +25,8 @@ const Table_TransferLog string = "transferlog"  // 平台轉點交易Log表
 const Table_GameLogSlot string = "gamelog_slot" // 遊戲紀錄slot表
 const Table_GameLogFish string = "gamelog_fish" // 遊戲紀錄fish表
 
+const Table_MessageBoard string = "MessageBoard" // 留言板表
+
 var database = &sql.DB{}
 
 func Mysql_Init() {
@@ -1537,12 +1539,12 @@ func Mysql_CommonHome_Insert(home HomeInfo) bool {
 	home.CreateTime = Common_NowTimeGet()
 	home.UpdateTime = Common_NowTimeGet()
 
-	SqlQuery = fmt.Sprintf("INSERT INTO %s(User_ID,NickName,CreateTime,UpdateTime,HomeName,HomeAddress,HomeAge,HomeFootage,HomePrice,Vip_rank, Memo) values(?,?,?,?,?,?,?,?,?,?,?)",
+	SqlQuery = fmt.Sprintf("INSERT INTO %s(User_ID,NickName,CreateTime,UpdateTime,HomeName,HomeArea,HomeAddress,HomeAge,HomeFootage,HomePrice,Vip_rank, Memo) values(?,?,?,?,?,?,?,?,?,?,?,?)",
 		Table_Homeinfo)
 	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
 
 	result, err := database.Exec(SqlQuery, home.User_ID, home.NickName, home.CreateTime, home.UpdateTime, home.HomeName,
-		home.HomeAddress, home.HomeAge, home.HomeFootage, home.HomePrice, home.Vip_rank, home.Memo)
+		home.HomeArea, home.HomeAddress, home.HomeAge, home.HomeFootage, home.HomePrice, home.Vip_rank, home.Memo)
 	if err != nil {
 		ErrorStr := err.Error()
 		CommonLog_WARNING_Println(ErrorStr)
@@ -1580,13 +1582,13 @@ func Mysql_CommonHome_Update(User_ID int64, home HomeInfo) bool {
 
 	home.UpdateTime = Common_NowTimeGet()
 
-	SqlQuery = fmt.Sprintf("update %s set User_ID=?, NickName=?, UpdateTime=?, HomeName=?, HomeAddress=?, HomeAge=?, HomeFootage=?, HomePrice=?, Vip_rank=?, Memo=?  where User_ID=%d AND HomeID=%d; ",
+	SqlQuery = fmt.Sprintf("update %s set User_ID=?, NickName=?, UpdateTime=?, HomeName=?, HomeArea=?, HomeAddress=?, HomeAge=?, HomeFootage=?, HomePrice=?, Vip_rank=?, Memo=?  where User_ID=%d AND HomeID=%d; ",
 		Table_Homeinfo, User_ID, home.HomeID)
 
 	CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
 
 	result, err := database.Exec(SqlQuery, home.User_ID, home.NickName, home.UpdateTime, home.HomeName,
-		home.HomeAddress, home.HomeAge, home.HomeFootage, home.HomePrice, home.Vip_rank, home.Memo)
+		home.HomeArea, home.HomeAddress, home.HomeAge, home.HomeFootage, home.HomePrice, home.Vip_rank, home.Memo)
 	if err != nil {
 		ErrorStr := err.Error()
 		CommonLog_WARNING_Println(ErrorStr)
@@ -1694,4 +1696,48 @@ func Mysql_CommonHomeListGet(member MemberInfo) ResponseInfo_HomeInfoList {
 	defer stmtIns.Close() // Close the statement when we leave main() / the program
 
 	return HomeList
+}
+
+//=========================================================================================================================================================================
+// 留言板資料新增
+func Mysql_MessageBoard_Insert(message MessageBoard) bool {
+	{
+		var ret bool = false
+		var SqlQuery string = ""
+		CommonLog_INFO_Printf("#Mysql_MessageBoard_Insert (留言板資料新增)")
+
+		message.CreateTime = Common_NowTimeGet()
+		message.UpdateTime = Common_NowTimeGet()
+
+		SqlQuery = fmt.Sprintf("INSERT INTO %s(MessageBoardName,User_ID, NickName, HomeName, CreateTime, UpdateTime, PhoneNumber, Gender, Rent, IsPet, IsSmoke, IsHouseholdRegister, IsTax, Isfaith, Memo) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", Table_MessageBoard)
+		CommonLog_INFO_Printf("SqlQuery=%s", SqlQuery)
+
+		result, err := database.Exec(SqlQuery, message.MessageBoardName, message.User_ID, message.NickName, message.HomeName, message.CreateTime, message.UpdateTime,
+			message.PhoneNumber, message.Gender, message.Rent, message.IsPet, message.IsSmoke, message.IsHouseholdRegister, message.IsTax, message.Isfaith, message.Memo)
+		if err != nil {
+			ErrorStr := err.Error()
+			CommonLog_WARNING_Println(ErrorStr)
+			ret = false
+		} else {
+			ret = true
+
+			num, err := result.RowsAffected()
+			if err != nil {
+				CommonLog_INFO_Printf("fetch row affected failed:", err.Error())
+				ret = false
+			}
+
+			if num > 0 {
+				ret = true
+			} else {
+				ret = false
+			}
+
+			CommonLog_INFO_Printf("#Mysql_MessageBoard_Insert record number=%d ret=%v", num, ret)
+		}
+
+		//defer database.Close() // Close the statement when we leave main() / the program
+
+		return ret
+	}
 }

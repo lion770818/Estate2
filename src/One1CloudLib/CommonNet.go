@@ -12,7 +12,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const VERSION string = "1.0.1" // Server 版本
+const VERSION string = "1.0.3" // Server 版本
 const CLIENT_MAX int = 5000    // 最大的client連線數, 超過此連線束後, 一律往最後面塞, 但是找空位時, 只會找 0~5000, 所以先不要超過 CLIENT_MAX 值阿 XD
 
 type ClientConn struct {
@@ -406,41 +406,57 @@ func Common_LoadData() {
 
 	// 桌子的Process ( 產魚腳本運行 or dosomething )
 	go Table_Process()
+	
+		//obj := CustomerInfo{}
+		//obj.CustomerName = "測試顧客"
+		obj := Task{}
+		obj.TaskName = "工作清單01"
+		DataMsgByte, err := json.Marshal(obj)
+		if err != nil {
+			CommonLog_WARNING_Println("json err:", err)
+		}
 
-	//obj := CustomerInfo{}
-	//obj.CustomerName = "測試顧客"
-	obj := Task{}
-	obj.TaskName = "工作清單01"
-	DataMsgByte, err := json.Marshal(obj)
-	if err != nil {
-		CommonLog_WARNING_Println("json err:", err)
-	}
+		DataMsg := string(DataMsgByte)
+		CommonLog_INFO_Printf("DataMsg=%s", DataMsg)
 
-	DataMsg := string(DataMsgByte)
-	CommonLog_INFO_Printf("DataMsg=%s", DataMsg)
+		obj0 := CommonPacketCmd{}
+		obj0.Cmd = "task_insert"
+		obj0.Sys = "system"
+		obj0.Data = DataMsg
+		DataMsgByte0, err0 := json.Marshal(obj0)
+		if err0 != nil {
+			CommonLog_WARNING_Println("json err:", err0)
+		}
+		DataMsg0 := string(DataMsgByte0)
+		CommonLog_INFO_Printf("組合出來的字串=%s", DataMsg0)
+		CommonLog_INFO_Printf("===========")
 
-	obj0 := CommonPacketCmd{}
-	obj0.Cmd = "task_insert"
-	obj0.Sys = "system"
-	obj0.Data = DataMsg
-	DataMsgByte0, err0 := json.Marshal(obj0)
+		home := HomeInfo{}
+		home.HomeName = "test"
+		home.HomeAge = 1
+		home.HomeFootage = 20
+		home.HomeAddress = "地球"
+		home.HomePrice = 230
+		home.User_ID = 1
+		home.NickName = "cat111"
+		home.Vip_rank = 1
+		//Mysql_CommonHome_Insert(home)
+	
+	message := MessageBoard{}
+	message.User_ID = 1
+	message.NickName = "嘿嘿喵"
+	message.MessageBoardName = "新的留言板"
+	message.Gender = "F"
+	message.PhoneNumber = "0912345678"
+
+	DataMsgByte1, err1 := json.Marshal(message)
 	if err0 != nil {
-		CommonLog_WARNING_Println("json err:", err0)
+		CommonLog_WARNING_Println("json err:", err1)
 	}
-	DataMsg0 := string(DataMsgByte0)
-	CommonLog_INFO_Printf("組合出來的字串=%s", DataMsg0)
-	CommonLog_INFO_Printf("===========")
+	DataMsg1 := string(DataMsgByte1)
+	CommonLog_INFO_Printf("組合出來的字串=%s", DataMsg1)
+	Mysql_MessageBoard_Insert(message)
 
-	home := HomeInfo{}
-	home.HomeName = "test"
-	home.HomeAge = 1
-	home.HomeFootage = 20
-	home.HomeAddress = "地球"
-	home.HomePrice = 230
-	home.User_ID = 1
-	home.NickName = "cat111"
-	home.Vip_rank = 1
-	//Mysql_CommonHome_Insert(home)
 }
 
 //=========================================================================================================================================================================
@@ -591,7 +607,6 @@ func Common_DispatchSystem(ClientID int, Cmd string, DecodeData string) (string,
 			CommonLog_INFO_Printf("工作清單取得 Code:%d, ResponseData:%s", Code, ResponseData)
 		}
 
-
 	case NEW_CMD_HOME_INSERT:
 		{
 			CommonLog_INFO_Printf("#收到封包 CMD=NEW_CMD_HOME_INSERT")
@@ -626,6 +641,15 @@ func Common_DispatchSystem(ClientID int, Cmd string, DecodeData string) (string,
 			// 房屋清單取得
 			ResponseData, Code = Common_HomeListGet(ClientID, DecodeData)
 			CommonLog_INFO_Printf("房屋清單取得 Code:%d, ResponseData:%s", Code, ResponseData)
+		}
+
+	case NET_CMD_MESSAGE_BOARD_INSERT:
+		{
+			CommonLog_INFO_Printf("#收到封包 CMD=NET_CMD_MESSAGE_BOARD_INSERT")
+
+			// 留言板新增
+			ResponseData, Code = Common_MessageBoardInsert(ClientID, DecodeData)
+			CommonLog_INFO_Printf("留言板新增 Code:%d, ResponseData:%s", Code, ResponseData)
 		}
 
 	case NET_CMD_LOBBYINFO_GET:

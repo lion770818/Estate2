@@ -12,6 +12,7 @@ type HomeInfo struct {
 	UpdateTime string `json:"updatetime"` //資料更新時間
 
 	HomeName    string  `json:"home_name"`    //房屋名稱
+	HomeArea    int     `json:"home_area"`    //房屋名稱
 	HomeAddress string  `json:"home_address"` //地址
 	HomeAge     int     `json:"home_age"`     //房屋屋齡
 	HomeFootage float32 `json:"home_footage"` //房屋坪數
